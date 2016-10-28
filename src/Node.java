@@ -46,12 +46,12 @@ public class Node {
 		
 		this.parent = null;
 		this.children = new ArrayList<Node>();
-		for(int i = 0; i<9 ; i++){
-			for(int j = 0; j<9; j++){
-				System.out.print(this.sudoku[i][j].getValue());
-			}
-			System.out.print("\n");
-		}
+//		for(int i = 0; i<9 ; i++){
+//			for(int j = 0; j<9; j++){
+//				System.out.print(this.sudoku[i][j].getValue());
+//			}
+//			System.out.print("\n");
+//		}
 	}
 	
 	public Node(Node parent, Position changedPos, int posValue){
@@ -61,10 +61,19 @@ public class Node {
 		ArrayList<Position> newFreePos = (ArrayList<Position>) parent.getFreePositions().clone();
 		newFreePos.remove(changedPos);
 		this.freePositions = newFreePos;
-		
-		this.sudoku = parent.sudoku.clone();
-		
-		this.sudoku[changedPos.getRow()][changedPos.getCol()] = new Cell(posValue);
+		this.sudoku = new Cell[9][9]; 
+		//clone in new sudoku except for changed positions
+		for(int i = 0; i<9; i++){
+			for(int j=0; j<9; j++){
+				if(i == changedPos.getRow() && j== changedPos.getCol()){
+					this.sudoku[i][j] = new Cell(posValue);
+//					System.out.println("i "+i+" j "+j +" s"+ this.sudoku[i][j].getValue());
+				}
+				else{
+					this.sudoku[i][j] = parent.getSudoku()[i][j];
+				}
+			}
+		}
 		
 	}
 
@@ -107,6 +116,8 @@ public class Node {
 		Cell selectedCell = sudoku[row][col];
 		for(int trialValue: selectedCell.getDomain()){
 			Node child = new Node(this, freePos, trialValue);
+//			SudokuMain.testPrint(child);
+//			System.out.println("================================");
 			this.children.add(child);
 		}
 	}

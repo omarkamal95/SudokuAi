@@ -12,8 +12,12 @@ public class SudokuMain {
 	public static void deapthFirstSearch(Path file) {
 		Node root = populateRoot(file);
 		initialEmptyPositions = root.getFreePositions();
-		DFSHelper(root);
-
+		if(DFSHelper(root)){
+			System.out.println("Done with DFS");
+		}
+		else{
+			System.out.println("WRROONNG DFS");
+		}
 	}
 
 	public static boolean DFSHelper(Node node) {
@@ -21,12 +25,16 @@ public class SudokuMain {
 		if (checkIfFull(node)) {
 			if (goalState(node)) {
 				printFinalResult(node);
-				System.out.print("Success, DFS done successfully");
+				testPrint(node);
+				System.out.println("Success, DFS done successfully");
 				return true;
 			} else {
 				return false;
 			}
-		} else {
+		}
+		else{
+//			testPrint(node);
+//			System.out.println("================================");
 			node.randomPopulateChildren();
 			ArrayList<Node> children = node.getChildren();
 
@@ -77,9 +85,11 @@ public class SudokuMain {
 		return false;
 	}
 
-	public static boolean checkIfFull(Node node) {
-		ArrayList<Position> freePositions = node.getFreePositions();
-		if (freePositions.isEmpty()) {
+	
+	public static boolean checkIfFull(Node node){
+		ArrayList<Position> freePositions= node.getFreePositions();
+//		System.out.println(freePositions.toString());
+		if(freePositions.isEmpty()){
 			return true;
 		}
 		return false;
@@ -101,10 +111,11 @@ public class SudokuMain {
 		// check for uniqueness in row
 		for (int i = 0; i < 9; i++) {
 			int test = sudoku[row][i].getValue();
-			if (test != 8 && test != 9) {
-				if (checker.contains(test)) {
-					checker.remove(test);
-				} else {
+			if(test !=8 && test != 9){
+				if(checker.contains(test)){
+					checker.remove(new Integer(test));
+				} 
+				else{
 					return false;
 				}
 			}
@@ -114,10 +125,11 @@ public class SudokuMain {
 		checker = produceCheckerArray();
 		for (int i = 0; i < 9; i++) {
 			int test = sudoku[i][col].getValue();
-			if (test != 8 && test != 9) {
-				if (checker.contains(test)) {
-					checker.remove(test);
-				} else {
+			if(test !=8 && test != 9){
+				if(checker.contains(test)){
+					checker.remove(new Integer(test));
+				} 
+				else{
 					return false;
 				}
 			}
@@ -157,10 +169,11 @@ public class SudokuMain {
 		for (int i = startRow; i <= endRow; i++) {
 			for (int j = startCol; j <= endCol; j++) {
 				int test = sudoku[i][j].getValue();
-				if (test != 8 && test != 9) {
-					if (checker.contains(test)) {
-						checker.remove(test);
-					} else {
+				if(test !=8 && test != 9){
+					if(checker.contains(test)){
+						checker.remove(new Integer(test));
+					} 
+					else{
 						return false;
 					}
 				}
@@ -197,8 +210,18 @@ public class SudokuMain {
 	public static void arcConsistency() {
 
 	}
-
-	public static Node populateRoot(Path file) {
+	
+	public static void testPrint(Node node){
+		Cell [][] sudoku = node.getSudoku();
+		for(int i = 0; i<9 ; i++){
+			for(int j =0; j<9; j++){
+				System.out.print(sudoku[i][j].getValue());
+			}
+			System.out.print("\n");
+		}
+	}
+	
+	public static Node populateRoot(Path file){
 		List<String> lines;
 		try {
 			lines = Files.readAllLines(file);
