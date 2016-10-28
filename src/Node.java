@@ -6,9 +6,11 @@ public class Node {
 	private Cell [][] sudoku;
 	private Node parent;
 	private ArrayList<Node> children;
+	private ArrayList<Position> freePositions;
 	
 	public Node(List<String> stringSudoku) {
 		this.sudoku = new Cell [9][9];
+		this.freePositions = new ArrayList<Position>();
 		// Check if rows = 9
 		if(stringSudoku.size() != 9){
 			System.out.print("Error: Rows aren't = 9");
@@ -28,6 +30,11 @@ public class Node {
 			
 			for(int col = 0; col < columns.length; col++){
 				char value = columns[col].charAt(0);
+				//Add Free Position
+				if(value == '*'){
+					Position p = new Position(row, col);
+					freePositions.add(p);
+				}
 				Cell currentCell = new Cell(value);
 				this.sudoku[row][col] = currentCell;
 			}
@@ -67,9 +74,18 @@ public class Node {
 		return children;
 	}
 
-	public void setChildren(ArrayList<Node> children) {
-		this.children = children;
+	public void addChild(Node child) {
+		this.children.add(child);
 	}
+
+	public ArrayList<Position> getFreePositions() {
+		return freePositions;
+	}
+
+	public void setFreePositions(ArrayList<Position> freePositions) {
+		this.freePositions = freePositions;
+	}
+	
 	
 
 }
