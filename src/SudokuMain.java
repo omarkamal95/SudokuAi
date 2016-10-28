@@ -16,19 +16,28 @@ public class SudokuMain {
 		
 	}
 	
-	public static void DFSHelper(Node node){
+	public static boolean DFSHelper(Node node){
 		// If full check if goal state
 		if(checkIfFull(node)){
 			if(goalState(node)){
 				printFinalResult(node);
 				System.out.print("Success, DFS done successfully");
+				return true;
 			}
 			else{
-				////// code missing @:TODO //////
+				return false;
 			}
 		}
 		else{
+			node.randomPopulateChildren();
+			ArrayList<Node> children = node.getChildren();
 			
+			for(Node child: children){
+				if(DFSHelper(child)){
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 	

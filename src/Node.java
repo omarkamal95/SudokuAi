@@ -53,6 +53,20 @@ public class Node {
 			System.out.print("\n");
 		}
 	}
+	
+	public Node(Node parent, Position changedPos, int posValue){
+		this.parent = parent;
+		this.children = new ArrayList<Node>();
+
+		ArrayList<Position> newFreePos = (ArrayList<Position>) parent.getFreePositions().clone();
+		newFreePos.remove(changedPos);
+		this.freePositions = newFreePos;
+		
+		this.sudoku = parent.sudoku.clone();
+		
+		this.sudoku[changedPos.getRow()][changedPos.getCol()] = new Cell(posValue);
+		
+	}
 
 	public Cell[][] getSudoku() {
 		return sudoku;
@@ -86,6 +100,16 @@ public class Node {
 		this.freePositions = freePositions;
 	}
 	
+	public void randomPopulateChildren(){
+		Position freePos = this.freePositions.get(0);
+		int row = freePos.getRow();
+		int col = freePos.getCol();
+		Cell selectedCell = sudoku[row][col];
+		for(int trialValue: selectedCell.getDomain()){
+			Node child = new Node(this, freePos, trialValue);
+			this.children.add(child);
+		}
+	}
 	
 
 }

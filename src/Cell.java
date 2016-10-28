@@ -18,6 +18,11 @@ public class Cell {
 			this.domain = null;
 		}
 	}
+	
+	public Cell(int val){
+		this.value = val;
+		this.domain = null;
+	}
 
 	public int getValue() {
 		return value;
