@@ -175,6 +175,13 @@ public class SudokuMain {
 	}
 	
 	public static void main(String[] args) {
+		//create an empty file for output
+		try {
+			File outputFile = new File("src/output.txt");
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
 		deapthFirstSearch(Paths.get("src/test1.txt"));
 	}
 

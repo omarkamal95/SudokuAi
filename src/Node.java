@@ -53,7 +53,12 @@ public class Node {
 			System.out.print("\n");
 		}
 	}
-
+	
+	public void writePlacement(String s){
+		Path p = Paths.get("src/output.text");
+		Files.write(p, s+'\n', Charset.forName("UTF-8"));
+	}
+	
 	public Cell[][] getSudoku() {
 		return sudoku;
 	}
