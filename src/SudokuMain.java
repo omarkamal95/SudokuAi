@@ -12,7 +12,12 @@ public class SudokuMain {
 	public static void deapthFirstSearch(Path file){
 		Node root = populateRoot(file);
 		initialEmptyPositions = root.getFreePositions();
-		DFSHelper(root);
+		if(DFSHelper(root)){
+			System.out.println("Done with DFS");
+		}
+		else{
+			System.out.println("WRROONNG DFS");
+		}
 		
 	}
 	
@@ -21,7 +26,8 @@ public class SudokuMain {
 		if(checkIfFull(node)){
 			if(goalState(node)){
 				printFinalResult(node);
-				System.out.print("Success, DFS done successfully");
+				testPrint(node);
+				System.out.println("Success, DFS done successfully");
 				return true;
 			}
 			else{
@@ -29,6 +35,8 @@ public class SudokuMain {
 			}
 		}
 		else{
+//			testPrint(node);
+//			System.out.println("================================");
 			node.randomPopulateChildren();
 			ArrayList<Node> children = node.getChildren();
 			
@@ -43,6 +51,7 @@ public class SudokuMain {
 	
 	public static boolean checkIfFull(Node node){
 		ArrayList<Position> freePositions= node.getFreePositions();
+//		System.out.println(freePositions.toString());
 		if(freePositions.isEmpty()){
 			return true;
 		}
@@ -67,7 +76,7 @@ public class SudokuMain {
 			int test = sudoku[row][i].getValue();
 			if(test !=8 && test != 9){
 				if(checker.contains(test)){
-					checker.remove(test);
+					checker.remove(new Integer(test));
 				} 
 				else{
 					return false;
@@ -82,7 +91,7 @@ public class SudokuMain {
 			int test = sudoku[i][col].getValue();
 			if(test !=8 && test != 9){
 				if(checker.contains(test)){
-					checker.remove(test);
+					checker.remove(new Integer(test));
 				} 
 				else{
 					return false;
@@ -130,7 +139,7 @@ public class SudokuMain {
 				int test = sudoku[i][j].getValue();
 				if(test !=8 && test != 9){
 					if(checker.contains(test)){
-						checker.remove(test);
+						checker.remove(new Integer(test));
 					} 
 					else{
 						return false;
@@ -168,6 +177,16 @@ public class SudokuMain {
 	
 	public static void arcConsistency(){
 		
+	}
+	
+	public static void testPrint(Node node){
+		Cell [][] sudoku = node.getSudoku();
+		for(int i = 0; i<9 ; i++){
+			for(int j =0; j<9; j++){
+				System.out.print(sudoku[i][j].getValue());
+			}
+			System.out.print("\n");
+		}
 	}
 	
 	public static Node populateRoot(Path file){
