@@ -212,11 +212,11 @@ public class SudokuMain {
 	public static void mostConstrained(Path file) {
 		Node root = populateRoot(file);
 		initialEmptyPositions = root.getFreePositions();
-		preprocessingSort(initialEmptyPositions, root.getSudoku());
+		root.setFreePositions(preprocessingSort(initialEmptyPositions, root.getSudoku()));
 		DFSHelper(root);
 	}
 
-	public static void preprocessingSort(ArrayList<Position> freePositions, Cell[][] sudoku) {
+	public static ArrayList<Position> preprocessingSort(ArrayList<Position> freePositions, Cell[][] sudoku) {
 		for (Position freeP : freePositions) {
 			// check constraints to determine order
 			refineDomain(freeP, sudoku);
@@ -229,7 +229,8 @@ public class SudokuMain {
 			for (Position freeP : freePositions){
 				
 			}*/
-		ArrayList<Position> sortedFreeP = doSelectionSort(freePositions, sudoku);
+		return doSelectionSort(freePositions, sudoku);
+		
 		
 	}
 	
@@ -275,7 +276,10 @@ public class SudokuMain {
 	}
 
 	public static void arcConsistency() {
-
+		Node root = populateRoot(file);
+		initialEmptyPositions = root.getFreePositions();
+		//to start with the most constrained node
+		preprocessingSort(initialEmptyPositions, root.getSudoku());
 	}
 
 	
