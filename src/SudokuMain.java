@@ -11,11 +11,17 @@ public class SudokuMain {
 
 	static ArrayList<Position> initialEmptyPositions;
 
+
 	public static void depthFirstSearch(Path file) {
 		Node root = populateRoot(file);
 		initialEmptyPositions = root.getFreePositions();
-		DFSHelper(root);
 
+		if(DFSHelper(root)){
+			System.out.println("Done with DFS");
+		}
+		else{
+			System.out.println("WRROONNG DFS");
+		}
 	}
 
 	public static boolean DFSHelper(Node node) {
@@ -23,12 +29,17 @@ public class SudokuMain {
 		if (checkIfFull(node)) {
 			if (goalState(node)) {
 				printFinalResult(node);
-				System.out.print("Success, DFS done successfully");
+				testPrint(node);
+				System.out.println("Success, DFS done successfully");
 				return true;
 			} else {
 				return false;
 			}
-		} else {
+
+		}
+		else{
+//			testPrint(node);
+//			System.out.println("================================");
 			node.randomPopulateChildren();
 			ArrayList<Node> children = node.getChildren();
 
@@ -41,9 +52,50 @@ public class SudokuMain {
 		}
 	}
 
-	public static boolean checkIfFull(Node node) {
-		ArrayList<Position> freePositions = node.getFreePositions();
-		if (freePositions.isEmpty()) {
+
+	public static void BreadthFirstSearch(Path file) {
+		Node root = populateRoot(file);
+		initialEmptyPositions = root.getFreePositions();
+		ArrayList<Node> level = new ArrayList<Node>();
+		level.add(root);
+		BFSHelper(level);
+
+	}
+
+	public static boolean BFSHelper(ArrayList<Node> level) {
+
+		Node node = level.get(0);
+		// If full check if goal state
+		if (checkIfFull(node)) {
+			if (goalState(node)) {
+				printFinalResult(node);
+				System.out.print("Success, BFS done successfully");
+				return true;
+			} else {
+				if (level.size() > 1) {
+					level.remove(node);
+					BFSHelper(level);
+				} else {
+					return false;
+				}
+			}
+		} else {
+			node.randomPopulateChildren();
+			ArrayList<Node> children = node.getChildren();
+			for (Node child : children) {
+				level.add(child);
+			}
+			level.remove(node);
+			BFSHelper(level);
+		}
+		return false;
+	}
+
+	
+	public static boolean checkIfFull(Node node){
+		ArrayList<Position> freePositions= node.getFreePositions();
+//		System.out.println(freePositions.toString());
+		if(freePositions.isEmpty()){
 			return true;
 		}
 		return false;
@@ -59,17 +111,19 @@ public class SudokuMain {
 		return true;
 	}
 
-	public static boolean satisfiedConstraintsOnPosition(int row, int col,
-			Cell[][] sudoku) {
+
+	public static boolean satisfiedConstraintsOnPosition(int row, int col, Cell[][] sudoku) {
 		ArrayList<Integer> checker = produceCheckerArray();
 
 		// check for uniqueness in row
 		for (int i = 0; i < 9; i++) {
 			int test = sudoku[row][i].getValue();
-			if (test != 8 && test != 9) {
-				if (checker.contains(test)) {
-					checker.remove(test);
-				} else {
+
+			if(test !=8 && test != 9){
+				if(checker.contains(test)){
+					checker.remove(new Integer(test));
+				} 
+				else{
 					return false;
 				}
 			}
@@ -79,10 +133,12 @@ public class SudokuMain {
 		checker = produceCheckerArray();
 		for (int i = 0; i < 9; i++) {
 			int test = sudoku[i][col].getValue();
-			if (test != 8 && test != 9) {
-				if (checker.contains(test)) {
-					checker.remove(test);
-				} else {
+
+			if(test !=8 && test != 9){
+				if(checker.contains(test)){
+					checker.remove(new Integer(test));
+				} 
+				else{
 					return false;
 				}
 			}
@@ -122,10 +178,12 @@ public class SudokuMain {
 		for (int i = startRow; i <= endRow; i++) {
 			for (int j = startCol; j <= endCol; j++) {
 				int test = sudoku[i][j].getValue();
-				if (test != 8 && test != 9) {
-					if (checker.contains(test)) {
-						checker.remove(test);
-					} else {
+
+				if(test !=8 && test != 9){
+					if(checker.contains(test)){
+						checker.remove(new Integer(test));
+					} 
+					else{
 						return false;
 					}
 				}
@@ -155,6 +213,7 @@ public class SudokuMain {
 		Node root = populateRoot(file);
 		initialEmptyPositions = root.getFreePositions();
 		preprocessingSort(initialEmptyPositions, root.getSudoku());
+		DFSHelper(root);
 	}
 
 	public static void preprocessingSort(ArrayList<Position> freePositions, Cell[][] sudoku) {
@@ -162,7 +221,7 @@ public class SudokuMain {
 			// check constraints to determine order
 			refineDomain(freeP, sudoku);
 		}
-		Collections.sort(freePositions);
+		//Collections.sort(freePositions);
 		/*for (Position freeP : freePositions) {
 			//compare domains to determine order
 			Cell targetCell = sudoku[freeP.getRow()][freeP.getCol()];
@@ -170,11 +229,36 @@ public class SudokuMain {
 			for (Position freeP : freePositions){
 				
 			}*/
+		ArrayList<Position> sortedFreeP = doSelectionSort(freePositions, sudoku);
 		
-		ArrayList<Position> sortedFreeP;
-		
-
 	}
+	
+	public static ArrayList<Position> doSelectionSort(ArrayList<Position> arr, Cell[][] sudoku){
+        
+        for (int i = 0; i < arr.size() - 1; i++)
+        {
+            int index = i;
+            for (int j = i + 1; j < arr.size(); j++){
+            	Position positionInIndex = arr.get(index);
+            	Position positionInJ = arr.get(j);
+            	Position positionInI = arr.get(i);
+            	Cell cellIndex = sudoku[positionInIndex.getRow()][positionInIndex.getCol()];
+            	Cell cellJ = sudoku[positionInJ.getRow()][positionInJ.getCol()];
+            	Cell cellI = sudoku[positionInI.getRow()][positionInI.getCol()];
+            	int domainOfIndex = cellIndex.getDomain().size();
+            	int domainOfJ = cellJ.getDomain().size();
+            	int domainOfI = cellI.getDomain().size();
+                if (domainOfJ < domainOfIndex) 
+                    index = j;
+            }
+            Position smallerDomain = arr.get(index);
+            arr.set(index, arr.get(i));
+            arr.set(i, smallerDomain);
+        }
+        return arr;
+    }
+	
+	
 	
 	public static void refineDomain(Position p, Cell[][] sudoku){
 		Cell targetCell = sudoku[p.getRow()][p.getCol()];
@@ -194,7 +278,18 @@ public class SudokuMain {
 
 	}
 
-	public static Node populateRoot(Path file) {
+	
+	public static void testPrint(Node node){
+		Cell [][] sudoku = node.getSudoku();
+		for(int i = 0; i<9 ; i++){
+			for(int j =0; j<9; j++){
+				System.out.print(sudoku[i][j].getValue());
+			}
+			System.out.print("\n");
+		}
+	}
+	
+	public static Node populateRoot(Path file){
 		List<String> lines;
 		try {
 			lines = Files.readAllLines(file);
@@ -210,6 +305,7 @@ public class SudokuMain {
 	public static void main(String[] args) {
 		File outputFile = new File("src/output.txt");
 		depthFirstSearch(Paths.get("src/test1.txt"));
+		BreadthFirstSearch(Paths.get("src/test1.txt"));
 	}
 
 }
