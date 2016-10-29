@@ -1,64 +1,86 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.*;
+import java.nio.charset.*;
+import java.nio.file.*;
+import java.util.*;
 
 public class Node {
-	private Cell [][] sudoku;
+	private Cell[][] sudoku;
 	private Node parent;
 	private ArrayList<Node> children;
 	private ArrayList<Position> freePositions;
-	
+
 	public Node(List<String> stringSudoku) {
-		this.sudoku = new Cell [9][9];
+		this.sudoku = new Cell[9][9];
 		this.freePositions = new ArrayList<Position>();
 		// Check if rows = 9
-		if(stringSudoku.size() != 9){
+		if (stringSudoku.size() != 9) {
 			System.out.print("Error: Rows aren't = 9");
 		}
 
 		// Get each cell in each row
 		int row = 0;
-		for(String s: stringSudoku){
-			String [] columns = s.split(" ");
+		for (String s : stringSudoku) {
+			String[] columns = s.split(" ");
 
-			//Check if columns = 9
-			if(columns.length != 9){
+			// Check if columns = 9
+			if (columns.length != 9) {
 				System.out.print("Error: Rows aren't = 9");
 			}
-			
-			//Loop over each column
-			
-			for(int col = 0; col < columns.length; col++){
+
+			// Loop over each column
+
+			for (int col = 0; col < columns.length; col++) {
 				char value = columns[col].charAt(0);
-				//Add Free Position
-				if(value == '*'){
+				// Add Free Position
+				if (value == '*') {
 					Position p = new Position(row, col);
 					freePositions.add(p);
 				}
 				Cell currentCell = new Cell(value);
 				this.sudoku[row][col] = currentCell;
 			}
-			
-			//Go to next row
+
+			// Go to next row
 			row++;
 
 		}
-		
+
 		this.parent = null;
 		this.children = new ArrayList<Node>();
-		for(int i = 0; i<9 ; i++){
-			for(int j = 0; j<9; j++){
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 9; j++) {
 				System.out.print(this.sudoku[i][j].getValue());
 			}
 			System.out.print("\n");
 		}
 	}
-	
-	public void writePlacement(String s){
+
+	public void writePlacement(String s) {
 		Path p = Paths.get("src/output.text");
-		Files.write(p, s+'\n', Charset.forName("UTF-8"));
+		Charset charset = Charset.forName("US-ASCII");
+		try (BufferedWriter writer = Files.newBufferedWriter(p, charset)) {
+			writer.write(s, 0, s.length());
+		} catch (IOException x) {
+			x.printStackTrace();
+		}
 	}
-	
+
+	public Node(Node parent, Position changedPos, int posValue) {
+		this.parent = parent;
+		this.children = new ArrayList<Node>();
+
+		ArrayList<Position> newFreePos = (ArrayList<Position>) parent
+				.getFreePositions().clone();
+		newFreePos.remove(changedPos);
+		this.freePositions = newFreePos;
+
+		this.sudoku = parent.sudoku.clone();
+
+		this.sudoku[changedPos.getRow()][changedPos.getCol()] = new Cell(
+				posValue);
+
+	}
+
 	public Cell[][] getSudoku() {
 		return sudoku;
 	}
@@ -90,7 +112,16 @@ public class Node {
 	public void setFreePositions(ArrayList<Position> freePositions) {
 		this.freePositions = freePositions;
 	}
-	
-	
+
+	public void randomPopulateChildren() {
+		Position freePos = this.freePositions.get(0);
+		int row = freePos.getRow();
+		int col = freePos.getCol();
+		Cell selectedCell = sudoku[row][col];
+		for (int trialValue : selectedCell.getDomain()) {
+			Node child = new Node(this, freePos, trialValue);
+			this.children.add(child);
+		}
+	}
 
 }

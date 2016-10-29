@@ -18,6 +18,11 @@ public class Cell {
 			this.domain = null;
 		}
 	}
+	
+	public Cell(int val){
+		this.value = val;
+		this.domain = null;
+	}
 
 	public int getValue() {
 		return value;
@@ -33,6 +38,10 @@ public class Cell {
 
 	public void setDomain(ArrayList<Integer> domain) {
 		this.domain = domain;
+	}
+	
+	public void removeFromDomain(int value) {
+		this.domain.remove(new Integer(value));
 	}
 
 }

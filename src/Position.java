@@ -1,7 +1,8 @@
 
-public class Position {
+public class Position implements Comparable<Position>{
 	private int row;
 	private int col;
+	private int domainSize;
 	
 	public Position(int row, int column) {
 		this.row = row;
@@ -22,6 +23,13 @@ public class Position {
 
 	public void setCol(int col) {
 		this.col = col;
+	}
+
+	@Override
+	public int compareTo(Position o) {
+		// TODO Auto-generated method stub
+		return new Integer(domainSize).compareTo(o.domainSize);
+		
 	}
 	
 
