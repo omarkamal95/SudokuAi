@@ -11,6 +11,7 @@ import java.util.List;
 public class SudokuMain {
 
 	static ArrayList<Position> initialEmptyPositions;
+	static ArrayList<String> arcConsistPrint = new ArrayList<String>();
 
 	public static void depthFirstSearch(Path file) {
 		Node root = populateRoot(file);
@@ -50,14 +51,6 @@ public class SudokuMain {
 		}
 	}
 
-	public static void BreadthFirstSearch(Path file) {
-		Node root = populateRoot(file);
-		initialEmptyPositions = root.getFreePositions();
-		ArrayList<Node> level = new ArrayList<Node>();
-		level.add(root);
-		BFSHelper(level);
-
-	}
 
 	public static boolean BFSHelper(ArrayList<Node> level) {
 
@@ -235,8 +228,42 @@ public class SudokuMain {
 		}
 	    
 	}
+	
+	public static void printArcConsist(Node node){
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter("src/1.sol", "UTF-8");
+			//Print Final Sudoku
+			Cell[][] sudoku = node.getSudoku();
+			for (int i = 0; i < 9; i++) {
+				for (int j = 0; j < 9; j++) {
+					writer.print(""+sudoku[i][j].getValue()+ " ");
+				}
+				writer.print("\n");
+			}
+			
+			writer.println("=================");
+			writer.println("      Steps Arc     ");
 
-	public static void breadthFirstSearch() {
+			//Print steps to final result
+
+			for(String s: arcConsistPrint){
+				writer.println(s);
+			}
+
+		    writer.close();
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			System.out.println("Error while printing final result");
+			e.printStackTrace();
+		}
+	}
+
+	public static void breadthFirstSearch(Path file) {
+		Node root = populateRoot(file);
+		initialEmptyPositions = root.getFreePositions();
+		ArrayList<Node> level = new ArrayList<Node>();
+		level.add(root);
+		BFSHelper(level);
 
 	}
 
@@ -296,8 +323,11 @@ public class SudokuMain {
 
 	}
 
-	public static void forwardChecking() {
-
+	public static void forwardChecking(Path file) {
+		Node root = populateRoot(file);
+		initialEmptyPositions = root.getFreePositions();
+		ArrayList<Position> sorted = preprocessingSort(initialEmptyPositions, root.getSudoku());
+		root.setFreePositions(sorted);
 	}
 
 	public static void arcConsistency(Path file) {
@@ -305,10 +335,12 @@ public class SudokuMain {
 		initialEmptyPositions = root.getFreePositions();
 		// to start with the most constrained node
 		ArrayList<Position> sortedList = preprocessingSort(initialEmptyPositions, root.getSudoku());
-		for (int i = 0; i < sortedList.size(); i++) {
+		int sortedInitial = sortedList.size();
+		for (int i = 0; i < sortedInitial; i++) {
 			tryValue(sortedList, sortedList.get(i), root);
 		}
 		testPrint(root);
+		printArcConsist(root);
 	}
 
 	public static void tryValue(ArrayList<Position> sortedList, Position initial, Node root) {
@@ -317,6 +349,10 @@ public class SudokuMain {
 		for (int trialValue : targetCell.getDomain()) {
 			if (propagateToNeighbors(sudoku, root, initial, trialValue)) {
 				targetCell.setValue(trialValue);
+				int rowInc= initial.getRow()+1;
+				int colInc = initial.getCol()+1;
+				String step = ""+ rowInc +" "+ colInc+" "+ trialValue;
+				arcConsistPrint.add(step);
 				break;
 			}
 		}
@@ -328,17 +364,15 @@ public class SudokuMain {
 		int x = p.getCol();
 
 		ArrayList<Position> l = root.getFreePositions();
-		l.remove(p);
-		Iterator<Position> iter = l.iterator();
-		while (iter.hasNext()) {
-			Position neighbor = iter.next();
+		
+			for(int i = l.indexOf(p) + 1; i < l.size(); i++) {
+			Position neighbor = l.get(i);
 			if (neighbor.getRow() == x || neighbor.getCol() == y
 					|| checkGrids(x, y, neighbor.getRow(), neighbor.getCol())) {
 				if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().isEmpty()) {
 					return false;
 				} else {
 					if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().contains(value)) {
-						iter.remove();
 						propagateToNeighbors(sudoku, root, neighbor, value);
 						sudoku[neighbor.getRow()][neighbor.getCol()].removeFromDomain(value);
 					}
@@ -350,10 +384,6 @@ public class SudokuMain {
 	}
 
 	public static boolean checkGrids(int row, int col, int row2, int col2) {
-		int startRow = -1;
-		int endRow = -1;
-		int startCol = -1;
-		int endCol = -1;
 		boolean srow = false;
 		boolean scol = false;
 
@@ -401,9 +431,9 @@ public class SudokuMain {
 	public static void main(String[] args) {
 //		File outputFile = new File("src/1.sud");
 //		depthFirstSearch(Paths.get("src/1.sud"));
-//		BreadthFirstSearch(Paths.get("src/1.sud"));
+		breadthFirstSearch(Paths.get("src/1.sud"));
 //		mostConstrained(Paths.get("src/1.sud"));
-		arcConsistency(Paths.get("src/1.sud"));
+//		arcConsistency(Paths.get("src/1.sud"));
 	}
 
 }
