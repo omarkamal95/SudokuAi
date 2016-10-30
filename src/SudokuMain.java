@@ -115,7 +115,7 @@ public class SudokuMain {
 		for (int i = 0; i < 9; i++) {
 			int test = sudoku[row][i].getValue();
 
-			if (test != 8 && test != 9) {
+			if (test != 8 && test != 9 && test != 0) {
 				if (checker.contains(test)) {
 					checker.remove(new Integer(test));
 				} else {
@@ -129,7 +129,7 @@ public class SudokuMain {
 		for (int i = 0; i < 9; i++) {
 			int test = sudoku[i][col].getValue();
 
-			if (test != 8 && test != 9) {
+			if (test != 8 && test != 9 && test != 0) {
 				if (checker.contains(test)) {
 					checker.remove(new Integer(test));
 				} else {
@@ -205,7 +205,8 @@ public class SudokuMain {
 	public static void mostConstrained(Path file) {
 		Node root = populateRoot(file);
 		initialEmptyPositions = root.getFreePositions();
-		root.setFreePositions(preprocessingSort(initialEmptyPositions, root.getSudoku()));
+		ArrayList<Position> sorted = preprocessingSort(initialEmptyPositions, root.getSudoku());
+		root.setFreePositions(sorted);
 		DFSHelper(root);
 	}
 
@@ -248,8 +249,9 @@ public class SudokuMain {
 		Iterator<Integer> iter = targetCell.getDomain().iterator();
 		while (iter.hasNext()) {
 			Integer trialValue = iter.next();
-			targetCell.setValue(trialValue);
-			if (!(satisfiedConstraintsOnPosition(p.getRow(), p.getCol(), sudoku))) {
+			sudoku[p.getRow()][p.getCol()].setValue(trialValue);
+			boolean flag = (satisfiedConstraintsOnPosition(p.getRow(), p.getCol(), sudoku));
+			if (!flag) {
 				iter.remove();
 			}
 		}
@@ -264,48 +266,47 @@ public class SudokuMain {
 		Node root = populateRoot(file);
 		initialEmptyPositions = root.getFreePositions();
 		// to start with the most constrained node
-		ArrayList <Position> sortedList = preprocessingSort(initialEmptyPositions, root.getSudoku());
-		tryValue(sortedList, root);
+		ArrayList<Position> sortedList = preprocessingSort(initialEmptyPositions, root.getSudoku());
+		Iterator<Position> i=sortedList.iterator();
+		while(i.hasNext()){
+			Position next = i.next();
+			tryValue(sortedList, next, root);
+		}
+//		for (Position freeP : sortedList) {
+//			tryValue(sortedList, freeP, root);
+//		}
+		testPrint(root);
 	}
 
-	public static void tryValue(ArrayList <Position> sortedList, Node root){
-		Position initial = sortedList.get(0);
-		Cell [][] sudoku = root.getSudoku();
+	public static void tryValue(ArrayList<Position> sortedList, Position initial, Node root) {
+		Cell[][] sudoku = root.getSudoku();
 		Cell targetCell = sudoku[initial.getRow()][initial.getCol()];
-		sortedList.remove(0);
-		for (int trialValue : targetCell.getDomain()){
-			targetCell.setValue(trialValue);
-			if (propagateToNeighbors (sudoku, sortedList, initial)){
+		for (int trialValue : targetCell.getDomain()) {
+			if (propagateToNeighbors(sudoku, sortedList, initial, trialValue)) {
+				targetCell.setValue(trialValue);
 				break;
 			}
 		}
-		testPrint(root);
-		
 	}
-	
-	public static boolean propagateToNeighbors(Cell[][] sudoku, ArrayList<Position> l, Position p) {
+
+	public static boolean propagateToNeighbors(Cell[][] sudoku, ArrayList<Position> l, Position p, int value) {
 		Cell targetCell = sudoku[p.getRow()][p.getCol()];
-		int x = p.getRow();
-		int y = p.getCol();
+		int y = p.getRow();
+		int x = p.getCol();
 
 		Iterator<Position> iter = l.iterator();
 		while (iter.hasNext()) {
 			Position neighbor = iter.next();
-			System.err.println(""+x+ y+ neighbor.getRow()+ neighbor.getCol());
-
 			if (neighbor.getRow() == x || neighbor.getCol() == y
 					|| checkGrids(x, y, neighbor.getRow(), neighbor.getCol())) {
-				System.err.println("hehe");
-
-				if(sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().isEmpty()){
-					
+				if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().isEmpty()) {
 					return false;
-				}
-				else {
-				iter.remove();
-				propagateToNeighbors(sudoku, l, neighbor);
-				sudoku[neighbor.getRow()][neighbor.getCol()].removeFromDomain(targetCell.getValue());
-				System.err.print(sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().size());
+				} else {
+					if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().contains(value)) {
+						iter.remove();
+						propagateToNeighbors(sudoku, l, neighbor, value);
+						sudoku[neighbor.getRow()][neighbor.getCol()].removeFromDomain(value);
+					}
 				}
 			}
 
@@ -364,9 +365,9 @@ public class SudokuMain {
 
 	public static void main(String[] args) {
 		File outputFile = new File("src/output.txt");
-		depthFirstSearch(Paths.get("src/test1.txt"));
-		//BreadthFirstSearch(Paths.get("src/test1.txt"));
-		mostConstrained(Paths.get("src/test1.txt"));
+		// depthFirstSearch(Paths.get("src/test1.txt"));
+		// BreadthFirstSearch(Paths.get("src/test1.txt"));
+		// mostConstrained(Paths.get("src/test1.txt"));
 		arcConsistency(Paths.get("src/test1.txt"));
 	}
 

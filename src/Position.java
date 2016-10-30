@@ -2,7 +2,6 @@
 public class Position {
 	private int row;
 	private int col;
-	private int domainSize;
 
 	public Position(int row, int column) {
 		this.row = row;
