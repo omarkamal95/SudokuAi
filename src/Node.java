@@ -1,6 +1,3 @@
-import java.io.*;
-import java.nio.charset.*;
-import java.nio.file.*;
 import java.util.*;
 
 public class Node {
@@ -8,6 +5,8 @@ public class Node {
 	private Node parent;
 	private ArrayList<Node> children;
 	private ArrayList<Position> freePositions;
+	private Position changedPosition;
+	private int changedPositionValue;
 
 	public Node(List<String> stringSudoku) {
 		this.sudoku = new Cell[9][9];
@@ -47,6 +46,8 @@ public class Node {
 
 		this.parent = null;
 		this.children = new ArrayList<Node>();
+		this.changedPosition = null;
+		this.changedPositionValue = -1;
 
 		// for(int i = 0; i<9 ; i++){
 		// for(int j = 0; j<9; j++){
@@ -56,24 +57,17 @@ public class Node {
 		// }
 	}
 
-	public void writePlacement(String s) {
-		Path p = Paths.get("src/output.text");
-		Charset charset = Charset.forName("US-ASCII");
-		try (BufferedWriter writer = Files.newBufferedWriter(p, charset)) {
-			writer.write(s, 0, s.length());
-		} catch (IOException x) {
-			x.printStackTrace();
-		}
-	}
-
 	public Node(Node parent, Position changedPos, int posValue) {
 		this.parent = parent;
 		this.children = new ArrayList<Node>();
 
-		ArrayList<Position> newFreePos = (ArrayList<Position>) parent
-				.getFreePositions().clone();
+		ArrayList<Position> newFreePos = (ArrayList<Position>) parent.getFreePositions().clone();
 		newFreePos.remove(changedPos);
 		this.freePositions = newFreePos;
+		
+		this.changedPosition = changedPos;
+		this.changedPositionValue = posValue;
+
 
 		this.sudoku = new Cell[9][9];
 		// clone in new sudoku except for changed positions
@@ -135,5 +129,23 @@ public class Node {
 			this.children.add(child);
 		}
 	}
+
+	public Position getChangedPosition() {
+		return changedPosition;
+	}
+
+	public void setChangedPosition(Position changedPosition) {
+		this.changedPosition = changedPosition;
+	}
+
+	public int getChangedPositionValue() {
+		return changedPositionValue;
+	}
+
+	public void setChangedPositionValue(int changedPositionValue) {
+		this.changedPositionValue = changedPositionValue;
+	}
+	
+	
 
 }

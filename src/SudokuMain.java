@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
+//import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
 public class SudokuMain {
 
@@ -66,8 +66,8 @@ public class SudokuMain {
 		if (checkIfFull(node)) {
 			if (goalState(node)) {
 				printFinalResult(node);
-				System.out.print("Success, BFS done successfully");
 				testPrint(node);
+				System.out.println("Success, BFS done successfully");
 				return true;
 			} else {
 				if (level.size() > 1) {
@@ -195,7 +195,46 @@ public class SudokuMain {
 	}
 
 	public static void printFinalResult(Node node) {
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter("src/1.sol", "UTF-8");
+			//Print Final Sudoku
+			Cell[][] sudoku = node.getSudoku();
+			for (int i = 0; i < 9; i++) {
+				for (int j = 0; j < 9; j++) {
+					writer.print(""+sudoku[i][j].getValue()+ " ");
+				}
+				writer.print("\n");
+			}
+			
+			writer.println("=================");
+			writer.println("      Steps      ");
 
+			//Print steps to final result
+			Node temp = node;
+			ArrayList<String> stepsStrings = new ArrayList<String>();
+			while(temp.getParent() != null){
+				int val = temp.getChangedPositionValue();
+				Position pos = temp.getChangedPosition();
+				int x = pos.getRow() +1;
+				int y = pos.getCol() +1;
+				String step = "" + x + " " + y + " " + val;
+				stepsStrings.add(step);
+				temp = temp.getParent();
+			}
+
+			while(!stepsStrings.isEmpty()){
+				int lastIndex = stepsStrings.size() - 1;
+				writer.println(stepsStrings.get(lastIndex));
+				stepsStrings.remove(lastIndex);
+			}
+
+		    writer.close();
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			System.out.println("Error while printing final result");
+			e.printStackTrace();
+		}
+	    
 	}
 
 	public static void breadthFirstSearch() {
@@ -214,7 +253,7 @@ public class SudokuMain {
 		for (Position freeP : freePositions) {
 			// check constraints to determine order
 			refineDomain(freeP, sudoku);
-			System.out.println("New Domain size is " + sudoku[freeP.getRow()][freeP.getCol()].getDomain().size());
+//			System.out.println("New Domain size is " + sudoku[freeP.getRow()][freeP.getCol()].getDomain().size());
 		}
 		return doSelectionSort(freePositions, sudoku);
 
@@ -361,11 +400,11 @@ public class SudokuMain {
 	}
 
 	public static void main(String[] args) {
-		File outputFile = new File("src/output.txt");
-		depthFirstSearch(Paths.get("src/test1.txt"));
-		BreadthFirstSearch(Paths.get("src/test1.txt"));
-		mostConstrained(Paths.get("src/test1.txt"));
-		arcConsistency(Paths.get("src/test1.txt"));
+//		File outputFile = new File("src/1.sud");
+//		depthFirstSearch(Paths.get("src/1.sud"));
+//		BreadthFirstSearch(Paths.get("src/1.sud"));
+//		mostConstrained(Paths.get("src/1.sud"));
+		arcConsistency(Paths.get("src/1.sud"));
 	}
 
 }
