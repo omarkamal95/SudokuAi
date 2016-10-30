@@ -260,12 +260,84 @@ public class SudokuMain {
 
 	}
 
-	// public static void arcConsistency() {
-	// //Node root = populateRoot(file);
-	// initialEmptyPositions = root.getFreePositions();
-	// //to start with the most constrained node
-	// preprocessingSort(initialEmptyPositions, root.getSudoku());
-	// }
+	public static void arcConsistency(Path file) {
+		Node root = populateRoot(file);
+		initialEmptyPositions = root.getFreePositions();
+		// to start with the most constrained node
+		ArrayList <Position> sortedList = preprocessingSort(initialEmptyPositions, root.getSudoku());
+		tryValue(sortedList, root);
+	}
+
+	public static void tryValue(ArrayList <Position> sortedList, Node root){
+		Position initial = sortedList.get(0);
+		Cell [][] sudoku = root.getSudoku();
+		Cell targetCell = sudoku[initial.getRow()][initial.getCol()];
+		sortedList.remove(0);
+		for (int trialValue : targetCell.getDomain()){
+			targetCell.setValue(trialValue);
+			if (propagateToNeighbors (sudoku, sortedList, initial)){
+				break;
+			}
+		}
+		testPrint(root);
+		
+	}
+	
+	public static boolean propagateToNeighbors(Cell[][] sudoku, ArrayList<Position> l, Position p) {
+		Cell targetCell = sudoku[p.getRow()][p.getCol()];
+		int x = p.getRow();
+		int y = p.getCol();
+
+		Iterator<Position> iter = l.iterator();
+		while (iter.hasNext()) {
+			Position neighbor = iter.next();
+			System.err.println(""+x+ y+ neighbor.getRow()+ neighbor.getCol());
+
+			if (neighbor.getRow() == x || neighbor.getCol() == y
+					|| checkGrids(x, y, neighbor.getRow(), neighbor.getCol())) {
+				System.err.println("hehe");
+
+				if(sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().isEmpty()){
+					
+					return false;
+				}
+				else {
+				iter.remove();
+				propagateToNeighbors(sudoku, l, neighbor);
+				sudoku[neighbor.getRow()][neighbor.getCol()].removeFromDomain(targetCell.getValue());
+				System.err.print(sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().size());
+				}
+			}
+
+		}
+		return true;
+	}
+
+	public static boolean checkGrids(int row, int col, int row2, int col2) {
+		int startRow = -1;
+		int endRow = -1;
+		int startCol = -1;
+		int endCol = -1;
+		boolean srow = false;
+		boolean scol = false;
+
+		if (row >= 0 && row <= 2 && row2 >= 0 && row2 <= 2) {
+			srow = true;
+		} else if (row >= 3 && row <= 5 && row2 >= 3 && row2 <= 5) {
+			srow = true;
+		} else if (row >= 6 && row <= 8 && row2 >= 6 && row2 <= 8) {
+			srow = true;
+		}
+
+		if (col >= 0 && col <= 2 && col2 >= 0 && col2 <= 2) {
+			scol = srow;
+		} else if (col >= 3 && col <= 5 && col2 >= 3 && col2 <= 5) {
+			scol = srow;
+		} else if (col >= 6 && col <= 8 && col2 >= 6 && col2 <= 8) {
+			scol = srow;
+		}
+		return scol;
+	}
 
 	public static void testPrint(Node node) {
 		Cell[][] sudoku = node.getSudoku();
@@ -293,8 +365,9 @@ public class SudokuMain {
 	public static void main(String[] args) {
 		File outputFile = new File("src/output.txt");
 		depthFirstSearch(Paths.get("src/test1.txt"));
-		BreadthFirstSearch(Paths.get("src/test1.txt"));
+		//BreadthFirstSearch(Paths.get("src/test1.txt"));
 		mostConstrained(Paths.get("src/test1.txt"));
+		arcConsistency(Paths.get("src/test1.txt"));
 	}
 
 }
