@@ -114,7 +114,6 @@ public class SudokuMain {
 		// check for uniqueness in row
 		for (int i = 0; i < 9; i++) {
 			int test = sudoku[row][i].getValue();
-
 			if (test != 8 && test != 9 && test != 0) {
 				if (checker.contains(test)) {
 					checker.remove(new Integer(test));
