@@ -267,14 +267,9 @@ public class SudokuMain {
 		initialEmptyPositions = root.getFreePositions();
 		// to start with the most constrained node
 		ArrayList<Position> sortedList = preprocessingSort(initialEmptyPositions, root.getSudoku());
-		Iterator<Position> i=sortedList.iterator();
-		while(i.hasNext()){
-			Position next = i.next();
-			tryValue(sortedList, next, root);
+		for (int i = 0; i < sortedList.size(); i++) {
+			tryValue(sortedList, sortedList.get(i), root);
 		}
-//		for (Position freeP : sortedList) {
-//			tryValue(sortedList, freeP, root);
-//		}
 		testPrint(root);
 	}
 
@@ -282,18 +277,20 @@ public class SudokuMain {
 		Cell[][] sudoku = root.getSudoku();
 		Cell targetCell = sudoku[initial.getRow()][initial.getCol()];
 		for (int trialValue : targetCell.getDomain()) {
-			if (propagateToNeighbors(sudoku, sortedList, initial, trialValue)) {
+			if (propagateToNeighbors(sudoku, root, initial, trialValue)) {
 				targetCell.setValue(trialValue);
 				break;
 			}
 		}
 	}
 
-	public static boolean propagateToNeighbors(Cell[][] sudoku, ArrayList<Position> l, Position p, int value) {
+	public static boolean propagateToNeighbors(Cell[][] sudoku, Node root, Position p, int value) {
 		Cell targetCell = sudoku[p.getRow()][p.getCol()];
 		int y = p.getRow();
 		int x = p.getCol();
 
+		ArrayList<Position> l = root.getFreePositions();
+		l.remove(p);
 		Iterator<Position> iter = l.iterator();
 		while (iter.hasNext()) {
 			Position neighbor = iter.next();
@@ -304,7 +301,7 @@ public class SudokuMain {
 				} else {
 					if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().contains(value)) {
 						iter.remove();
-						propagateToNeighbors(sudoku, l, neighbor, value);
+						propagateToNeighbors(sudoku, root, neighbor, value);
 						sudoku[neighbor.getRow()][neighbor.getCol()].removeFromDomain(value);
 					}
 				}
@@ -365,9 +362,9 @@ public class SudokuMain {
 
 	public static void main(String[] args) {
 		File outputFile = new File("src/output.txt");
-		// depthFirstSearch(Paths.get("src/test1.txt"));
-		// BreadthFirstSearch(Paths.get("src/test1.txt"));
-		// mostConstrained(Paths.get("src/test1.txt"));
+		depthFirstSearch(Paths.get("src/test1.txt"));
+		BreadthFirstSearch(Paths.get("src/test1.txt"));
+		mostConstrained(Paths.get("src/test1.txt"));
 		arcConsistency(Paths.get("src/test1.txt"));
 	}
 
