@@ -39,5 +39,9 @@ public class Cell {
 	public void setDomain(ArrayList<Integer> domain) {
 		this.domain = domain;
 	}
+	
+	public void removeFromDomain(int value) {
+		this.domain.remove(new Integer(value));
+	}
 
 }

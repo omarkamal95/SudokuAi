@@ -2,7 +2,7 @@
 public class Position {
 	private int row;
 	private int col;
-	
+
 	public Position(int row, int column) {
 		this.row = row;
 		this.col = column;
@@ -23,6 +23,5 @@ public class Position {
 	public void setCol(int col) {
 		this.col = col;
 	}
-	
 
 }
