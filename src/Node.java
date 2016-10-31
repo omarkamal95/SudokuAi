@@ -129,6 +129,35 @@ public class Node {
 			this.children.add(child);
 		}
 	}
+	
+	public void forwardCheckPopulateChildren(){
+		Position freePos = this.freePositions.get(0);
+		int row = freePos.getRow();
+		int col = freePos.getCol();
+		Cell selectedCell = sudoku[row][col];
+		for(int trialValue :selectedCell.getDomain()){
+			boolean isGoodValue= true;
+			for(int i= 1; i<freePositions.size(); i++ ){
+				Position testPos = freePositions.get(i);
+				int testPosRow = testPos.getRow();
+				int testPosCol = testPos.getCol();
+				if(row == testPosRow || col == testPosCol 
+						|| SudokuMain.checkGrids(row, col, testPosRow, testPosCol)){
+					Cell affectedNeighbourCell = this.sudoku[testPosRow][testPosCol];
+					ArrayList<Integer> affectedDomain = (ArrayList<Integer>) affectedNeighbourCell.getDomain().clone();
+					affectedDomain.remove(new Integer(trialValue));
+					if(affectedDomain.isEmpty()){
+						isGoodValue = false;
+						break;
+					}
+				}
+			}
+			if(isGoodValue){
+				Node child = new Node(this, freePos, trialValue);
+				this.children.add(child);
+			}
+		}
+	}
 
 	public Position getChangedPosition() {
 		return changedPosition;

@@ -328,6 +328,38 @@ public class SudokuMain {
 		initialEmptyPositions = root.getFreePositions();
 		ArrayList<Position> sorted = preprocessingSort(initialEmptyPositions, root.getSudoku());
 		root.setFreePositions(sorted);
+		
+		if (forwardCheckHelper(root)) {
+			System.out.println("Done with Forward Checking");
+		} else {
+			System.out.println("WRROONNG Forward Checking");
+		}
+	}
+	
+	public static boolean forwardCheckHelper(Node node){
+		if (checkIfFull(node)) {
+			
+			printFinalResult(node);
+			testPrint(node);
+			System.out.println("Success, Forward Checking done successfully");
+			return true;
+
+		} else {
+			node.forwardCheckPopulateChildren();
+			ArrayList<Node> children = node.getChildren();
+			if(children.isEmpty()){
+				return false;
+			}
+			else{
+				for (Node child : children) {
+					if (forwardCheckHelper(child)) {
+						return true;
+					}
+				}
+				return false;
+			}
+			
+		}
 	}
 
 	public static void arcConsistency(Path file) {
@@ -431,9 +463,10 @@ public class SudokuMain {
 	public static void main(String[] args) {
 //		File outputFile = new File("src/1.sud");
 //		depthFirstSearch(Paths.get("src/1.sud"));
-		breadthFirstSearch(Paths.get("src/1.sud"));
+//		breadthFirstSearch(Paths.get("src/1.sud"));
 //		mostConstrained(Paths.get("src/1.sud"));
 //		arcConsistency(Paths.get("src/1.sud"));
+		forwardChecking(Paths.get("src/1.sud"));
 	}
 
 }
