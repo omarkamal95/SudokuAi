@@ -401,14 +401,15 @@ public class SudokuMain {
 			Position neighbor = l.get(i);
 			if (neighbor.getRow() == x || neighbor.getCol() == y
 					|| checkGrids(x, y, neighbor.getRow(), neighbor.getCol())) {
-				if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().isEmpty()) {
-					return false;
-				} else {
+				 
 					if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().contains(value)) {
-						propagateToNeighbors(sudoku, root, neighbor, value);
 						sudoku[neighbor.getRow()][neighbor.getCol()].removeFromDomain(value);
+						if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().isEmpty()) {
+							return false;
+						}
+						propagateToNeighbors(sudoku, root, neighbor, value);
 					}
-				}
+				
 			}
 
 		}
@@ -461,12 +462,14 @@ public class SudokuMain {
 	}
 
 	public static void main(String[] args) {
-//		File outputFile = new File("src/1.sud");
+		long startTime = System.nanoTime();		
 //		depthFirstSearch(Paths.get("src/1.sud"));
 //		breadthFirstSearch(Paths.get("src/1.sud"));
 //		mostConstrained(Paths.get("src/1.sud"));
-//		arcConsistency(Paths.get("src/1.sud"));
-		forwardChecking(Paths.get("src/1.sud"));
+		arcConsistency(Paths.get("src/1.sud"));
+//		forwardChecking(Paths.get("src/1.sud"));
+		long endTime = System.nanoTime();
+		System.out.println("Took "+(endTime - startTime) + " ns"); 
 	}
 
 }
