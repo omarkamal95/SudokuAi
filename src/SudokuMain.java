@@ -51,7 +51,6 @@ public class SudokuMain {
 		}
 	}
 
-
 	public static boolean BFSHelper(ArrayList<Node> level) {
 
 		Node node = level.get(0);
@@ -190,68 +189,68 @@ public class SudokuMain {
 		PrintWriter writer;
 		try {
 			writer = new PrintWriter("src/1.sol", "UTF-8");
-			//Print Final Sudoku
+			// Print Final Sudoku
 			Cell[][] sudoku = node.getSudoku();
 			for (int i = 0; i < 9; i++) {
 				for (int j = 0; j < 9; j++) {
-					writer.print(""+sudoku[i][j].getValue()+ " ");
+					writer.print("" + sudoku[i][j].getValue() + " ");
 				}
 				writer.print("\n");
 			}
-			
+
 			writer.println("=================");
 			writer.println("      Steps      ");
 
-			//Print steps to final result
+			// Print steps to final result
 			Node temp = node;
 			ArrayList<String> stepsStrings = new ArrayList<String>();
-			while(temp.getParent() != null){
+			while (temp.getParent() != null) {
 				int val = temp.getChangedPositionValue();
 				Position pos = temp.getChangedPosition();
-				int x = pos.getRow() +1;
-				int y = pos.getCol() +1;
+				int x = pos.getRow() + 1;
+				int y = pos.getCol() + 1;
 				String step = "" + x + " " + y + " " + val;
 				stepsStrings.add(step);
 				temp = temp.getParent();
 			}
 
-			while(!stepsStrings.isEmpty()){
+			while (!stepsStrings.isEmpty()) {
 				int lastIndex = stepsStrings.size() - 1;
 				writer.println(stepsStrings.get(lastIndex));
 				stepsStrings.remove(lastIndex);
 			}
 
-		    writer.close();
+			writer.close();
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			System.out.println("Error while printing final result");
 			e.printStackTrace();
 		}
-	    
+
 	}
-	
-	public static void printArcConsist(Node node){
+
+	public static void printArcConsist(Node node) {
 		PrintWriter writer;
 		try {
 			writer = new PrintWriter("src/1.sol", "UTF-8");
-			//Print Final Sudoku
+			// Print Final Sudoku
 			Cell[][] sudoku = node.getSudoku();
 			for (int i = 0; i < 9; i++) {
 				for (int j = 0; j < 9; j++) {
-					writer.print(""+sudoku[i][j].getValue()+ " ");
+					writer.print("" + sudoku[i][j].getValue() + " ");
 				}
 				writer.print("\n");
 			}
-			
+
 			writer.println("=================");
 			writer.println("      Steps Arc     ");
 
-			//Print steps to final result
+			// Print steps to final result
 
-			for(String s: arcConsistPrint){
+			for (String s : arcConsistPrint) {
 				writer.println(s);
 			}
 
-		    writer.close();
+			writer.close();
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			System.out.println("Error while printing final result");
 			e.printStackTrace();
@@ -279,7 +278,8 @@ public class SudokuMain {
 		for (Position freeP : freePositions) {
 			// check constraints to determine order
 			refineDomain(freeP, sudoku);
-//			System.out.println("New Domain size is " + sudoku[freeP.getRow()][freeP.getCol()].getDomain().size());
+			// System.out.println("New Domain size is " +
+			// sudoku[freeP.getRow()][freeP.getCol()].getDomain().size());
 		}
 		return doSelectionSort(freePositions, sudoku);
 
@@ -328,17 +328,17 @@ public class SudokuMain {
 		initialEmptyPositions = root.getFreePositions();
 		ArrayList<Position> sorted = preprocessingSort(initialEmptyPositions, root.getSudoku());
 		root.setFreePositions(sorted);
-		
+
 		if (forwardCheckHelper(root)) {
 			System.out.println("Done with Forward Checking");
 		} else {
 			System.out.println("WRROONNG Forward Checking");
 		}
 	}
-	
-	public static boolean forwardCheckHelper(Node node){
+
+	public static boolean forwardCheckHelper(Node node) {
 		if (checkIfFull(node)) {
-			
+
 			printFinalResult(node);
 			testPrint(node);
 			System.out.println("Success, Forward Checking done successfully");
@@ -347,10 +347,9 @@ public class SudokuMain {
 		} else {
 			node.forwardCheckPopulateChildren();
 			ArrayList<Node> children = node.getChildren();
-			if(children.isEmpty()){
+			if (children.isEmpty()) {
 				return false;
-			}
-			else{
+			} else {
 				for (Node child : children) {
 					if (forwardCheckHelper(child)) {
 						return true;
@@ -358,7 +357,7 @@ public class SudokuMain {
 				}
 				return false;
 			}
-			
+
 		}
 	}
 
@@ -381,9 +380,9 @@ public class SudokuMain {
 		for (int trialValue : targetCell.getDomain()) {
 			if (propagateToNeighbors(sudoku, root, initial, trialValue)) {
 				targetCell.setValue(trialValue);
-				int rowInc= initial.getRow()+1;
-				int colInc = initial.getCol()+1;
-				String step = ""+ rowInc +" "+ colInc+" "+ trialValue;
+				int rowInc = initial.getRow() + 1;
+				int colInc = initial.getCol() + 1;
+				String step = "" + rowInc + " " + colInc + " " + trialValue;
 				arcConsistPrint.add(step);
 				break;
 			}
@@ -396,22 +395,24 @@ public class SudokuMain {
 		int x = p.getCol();
 
 		ArrayList<Position> l = root.getFreePositions();
-		
-			for(int i = l.indexOf(p) + 1; i < l.size(); i++) {
-			Position neighbor = l.get(i);
-			if (neighbor.getRow() == x || neighbor.getCol() == y
-					|| checkGrids(x, y, neighbor.getRow(), neighbor.getCol())) {
-				 
-					if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().contains(value)) {
-						sudoku[neighbor.getRow()][neighbor.getCol()].removeFromDomain(value);
-						if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().isEmpty()) {
-							return false;
-						}
-						propagateToNeighbors(sudoku, root, neighbor, value);
-					}
-				
-			}
 
+		for (int i = 0; i < l.size(); i++) {
+			if (l.indexOf(p) != i) {
+				Position neighbor = l.get(i);
+				if (neighbor.getRow() == x || neighbor.getCol() == y
+						|| checkGrids(x, y, neighbor.getRow(), neighbor.getCol())) {
+					if (sudoku[neighbor.getRow()][neighbor.getCol()].getValue() != 0) {
+						if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().contains(value)) {
+							sudoku[neighbor.getRow()][neighbor.getCol()].removeFromDomain(value);
+							if (sudoku[neighbor.getRow()][neighbor.getCol()].getDomain().isEmpty()) {
+								return false;
+							}
+							propagateToNeighbors(sudoku, root, neighbor, value);
+						}
+
+					}
+				}
+			}
 		}
 		return true;
 	}
@@ -462,14 +463,14 @@ public class SudokuMain {
 	}
 
 	public static void main(String[] args) {
-		long startTime = System.nanoTime();		
-//		depthFirstSearch(Paths.get("src/1.sud"));
-//		breadthFirstSearch(Paths.get("src/1.sud"));
-//		mostConstrained(Paths.get("src/1.sud"));
+		long startTime = System.nanoTime();
+		//depthFirstSearch(Paths.get("src/1.sud"));
+		//breadthFirstSearch(Paths.get("src/1.sud"));
+		//mostConstrained(Paths.get("src/1.sud"));
 		arcConsistency(Paths.get("src/1.sud"));
-//		forwardChecking(Paths.get("src/1.sud"));
+		//forwardChecking(Paths.get("src/1.sud"));
 		long endTime = System.nanoTime();
-		System.out.println("Took "+(endTime - startTime) + " ns"); 
+		System.out.println("Took " + (endTime - startTime) + " ns");
 	}
 
 }
